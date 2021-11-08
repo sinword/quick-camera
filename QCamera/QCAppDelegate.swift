@@ -35,6 +35,7 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
     var windowTitle = "Quick Camera";
     let defaultDeviceIndex: Int = 0;
     var selectedDeviceIndex: Int = 0
+    var deviceIndex: Int = 0;
     
     var devices: [AVCaptureDevice]!;
     var captureSession: AVCaptureSession!;
@@ -62,7 +63,6 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
         }
         
         let deviceMenu = NSMenu();
-        var deviceIndex = 0;
 
         // Here we need to keep track of the current device (if selected) in order to keep it checked in the menu
         var currentDevice = self.devices[defaultDeviceIndex]
@@ -203,13 +203,16 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
         }
         isBorderless = !isBorderless;
         sender.state = convertToNSControlStateValue((isBorderless ? NSControl.StateValue.on.rawValue : NSControl.StateValue.off.rawValue));
+        fixBorder()
+    }
+
+    func fixBorder() {
         if (isBorderless) {
             removeBorder()
         } else {
             addBorder()
         }
         fixAspectRatio();
-        
     }
     
     @IBAction func enterFullScreen(_ sender: NSMenuItem) {
@@ -317,12 +320,65 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         detectVideoDevices();
-        startCaptureWithVideoDevice(defaultDevice: defaultDeviceIndex);
+
+        // Load device from saved settings
+        NSLog("Application is starting. Loading autosaved settings.")
+        let savedDevice = UserDefaults.standard.integer(forKey: "selectedDeviceIndex")
+        NSLog("Loading device: %d", savedDevice)
+        if (savedDevice < self.deviceIndex){
+            startCaptureWithVideoDevice(defaultDevice: savedDevice);
+        } else {
+            startCaptureWithVideoDevice(defaultDevice: defaultDeviceIndex);
+        }
+        //TODO: Need to set the selected device in the menu as well
+        // Load rotation position
+        let savedPosition = UserDefaults.standard.integer(forKey: "position")
+        NSLog("Loaded position: %d", savedPosition)
+        self.position = savedPosition
+        setRotation(savedPosition)
+        // Load mirroring
+        let isMirrored = UserDefaults.standard.bool(forKey: "isMirrored")
+        NSLog("Loaded isMirrored: %d", isMirrored)
+        self.isMirrored = isMirrored
+        self.captureLayer.connection?.isVideoMirrored = isMirrored;
+        // Load upsidedown
+        let isUpsideDown = UserDefaults.standard.bool(forKey: "isUpsideDown")
+        NSLog("Loaded isUpsideDown: %d", isUpsideDown)
+        self.isUpsideDown = isUpsideDown
+        // Load aspect ratio
+        let isAspectRatioFixed = UserDefaults.standard.bool(forKey: "isAspectRatioFixed")
+        NSLog("Loaded isAspectRatioFixed: %d", isAspectRatioFixed)
+        self.isAspectRatioFixed = isAspectRatioFixed
+        fixAspectRatio()
+        //TODO: Need to set the checkbox on the aspect menu correctly
+        // Load borderless
+        let isBorderless = UserDefaults.standard.bool(forKey: "isBorderless")
+        NSLog("Loading isBorderless: %d", isBorderless)
+        self.isBorderless = isBorderless
+        //TODO: Need to fix borderless
+        //fixBorder()
+
         usb.delegate = self
     }
     
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         true;
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        NSLog("Application is terminating. Saving settings.")
+        NSLog("Saving selected device index: %d", self.selectedDeviceIndex)
+        UserDefaults.standard.set(selectedDeviceIndex, forKey: "selectedDeviceIndex")
+        NSLog("Saving rotation position")
+        UserDefaults.standard.set(self.position, forKey: "position")
+        NSLog("Saving isMirrored")
+        UserDefaults.standard.set(self.isMirrored, forKey: "isMirrored")
+        NSLog("Saving isUpsideDown")
+        UserDefaults.standard.set(self.isUpsideDown, forKey: "isUpsideDown")
+        NSLog("Saving isAspectRatioFixed")
+        UserDefaults.standard.set(self.isAspectRatioFixed, forKey: "isAspectRatioFixed")
+        NSLog("Saving isBorderless")
+        UserDefaults.standard.set(self.isBorderless, forKey: "isBorderless")
     }
 }
 
