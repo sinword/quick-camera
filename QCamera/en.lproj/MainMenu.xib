@@ -394,6 +394,8 @@
         </window>
         <customObject id="494" customClass="QCAppDelegate" customModule="Quick_Camera">
             <connections>
+                <outlet property="aspectRatioMenuItem" destination="eHX-9R-cym" id="eDk-P3-02b"/>
+                <outlet property="borderlessModeMenuItem" destination="651" id="ql3-SN-kgA"/>
                 <outlet property="playerView" destination="372" id="tVX-fO-IZ2"/>
                 <outlet property="selectSourceMenu" destination="124" id="h5v-Cn-4oU"/>
                 <outlet property="window" destination="371" id="fTI-Cc-re1"/>

@@ -22,7 +22,9 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
     @IBOutlet weak var window: NSWindow!
     @IBOutlet weak var selectSourceMenu: NSMenuItem!
     @IBOutlet weak var playerView: NSView!
-    
+    @IBOutlet weak var borderlessModeMenuItem: NSMenuItem!
+    @IBOutlet weak var aspectRatioMenuItem: NSMenuItem!
+
     var isMirrored: Bool = false;
     var isUpsideDown: Bool = false;
     
@@ -115,14 +117,13 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
             self.windowTitle = String(format: "Quick Camera: [%@]", device.localizedName);
             self.window.title = self.windowTitle;
             fixAspectRatio();
+            selectedDeviceIndex = defaultDevice
         } catch {
             NSLog("Error while opening device");
             self.errorMessage(message: "Unfortunately, there was an error when trying to access the camera. Try again or select a different one.");
         }
     }
-    
-   
-    
+
     @IBAction func mirrorHorizontally(_ sender: NSMenuItem) {
         NSLog("Mirror image menu item selected");
         isMirrored = !isMirrored;
@@ -186,6 +187,7 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
         window.title = self.windowTitle;
         self.window.level = convertToNSWindowLevel(Int(CGWindowLevelForKey(.normalWindow)));
         window.isMovableByWindowBackground = false;
+        borderlessModeMenuItem.state = convertToNSControlStateValue(NSControl.StateValue.off.rawValue);
     }
     
     private func removeBorder() {
@@ -193,8 +195,9 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
         self.window.styleMask = [NSWindow.StyleMask.borderless, NSWindow.StyleMask.resizable];
         self.window.level = convertToNSWindowLevel(Int(CGWindowLevelForKey(.maximumWindow)));
         window.isMovableByWindowBackground = true;
+        borderlessModeMenuItem.state = convertToNSControlStateValue(NSControl.StateValue.on.rawValue);
     }
-    
+
     @IBAction func borderless(_ sender: NSMenuItem) {
         NSLog("Borderless menu item selected");
         if (self.window.styleMask.contains(.fullScreen)){
@@ -202,7 +205,6 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
             return;
         }
         isBorderless = !isBorderless;
-        sender.state = convertToNSControlStateValue((isBorderless ? NSControl.StateValue.on.rawValue : NSControl.StateValue.off.rawValue));
         fixBorder()
     }
 
@@ -222,7 +224,6 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
     
     @IBAction func toggleFixAspectRatio(_ sender: NSMenuItem) {
         isAspectRatioFixed = !isAspectRatioFixed;
-        sender.state = convertToNSControlStateValue((isAspectRatioFixed ? NSControl.StateValue.on.rawValue : NSControl.StateValue.off.rawValue));
         fixAspectRatio();
     }
     
@@ -238,8 +239,10 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
             var currentSize = self.window.contentLayoutRect.size;
             currentSize.height = currentSize.width / ratio;
             self.window.setContentSize(currentSize);
+            aspectRatioMenuItem.state = convertToNSControlStateValue(NSControl.StateValue.on.rawValue)
         } else {
             self.window.contentResizeIncrements = NSMakeSize(1.0,1.0);
+            aspectRatioMenuItem.state = convertToNSControlStateValue(NSControl.StateValue.off.rawValue)
         }
     }
      
@@ -301,6 +304,15 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
             }
         }
     }
+
+    func setDeviceMenuSelection(selection: Int){
+        for (index, element) in selectSourceMenu.submenu!.items.enumerated() {
+            element.state = NSControl.StateValue.off
+            if (index == selection){
+                element.state = NSControl.StateValue.on
+            }
+        }
+    }
     
     @objc func deviceMenuChanged(_ sender: NSMenuItem) {
         NSLog("Device Menu changed");
@@ -308,13 +320,7 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
             // selected the active device, so nothing to do here
             return;
         }
-        
-        // set the checkbox on the currently selected device
-        for menuItem: NSMenuItem in selectSourceMenu.submenu!.items {
-            menuItem.state = NSControl.StateValue.off;
-        }
-        sender.state = NSControl.StateValue.on;
-        
+        setDeviceMenuSelection(selection: sender.representedObject as! Int)
         self.startCaptureWithVideoDevice(defaultDevice: sender.representedObject as! Int)
     }
     
@@ -327,10 +333,12 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
         NSLog("Loading device: %d", savedDevice)
         if (savedDevice < self.deviceIndex){
             startCaptureWithVideoDevice(defaultDevice: savedDevice);
+            setDeviceMenuSelection(selection: savedDevice)
         } else {
             startCaptureWithVideoDevice(defaultDevice: defaultDeviceIndex);
+            setDeviceMenuSelection(selection: defaultDeviceIndex)
         }
-        //TODO: Need to set the selected device in the menu as well
+
         // Load rotation position
         let savedPosition = UserDefaults.standard.integer(forKey: "position")
         NSLog("Loaded position: %d", savedPosition)
@@ -350,13 +358,13 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
         NSLog("Loaded isAspectRatioFixed: %d", isAspectRatioFixed)
         self.isAspectRatioFixed = isAspectRatioFixed
         fixAspectRatio()
-        //TODO: Need to set the checkbox on the aspect menu correctly
         // Load borderless
         let isBorderless = UserDefaults.standard.bool(forKey: "isBorderless")
         NSLog("Loading isBorderless: %d", isBorderless)
         self.isBorderless = isBorderless
-        //TODO: Need to fix borderless
-        //fixBorder()
+        if isBorderless{
+            removeBorder()
+        }
 
         usb.delegate = self
     }
@@ -378,6 +386,8 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
         NSLog("Saving isAspectRatioFixed")
         UserDefaults.standard.set(self.isAspectRatioFixed, forKey: "isAspectRatioFixed")
         NSLog("Saving isBorderless")
+        // Add border so that we get the right coords
+        addBorder()
         UserDefaults.standard.set(self.isBorderless, forKey: "isBorderless")
     }
 }
