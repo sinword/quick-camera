@@ -349,11 +349,6 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
         let isUpsideDown = UserDefaults.standard.bool(forKey: "isUpsideDown")
         NSLog("Loaded isUpsideDown: %d", isUpsideDown)
         self.isUpsideDown = isUpsideDown
-        // Load aspect ratio
-        let isAspectRatioFixed = UserDefaults.standard.bool(forKey: "isAspectRatioFixed")
-        NSLog("Loaded isAspectRatioFixed: %d", isAspectRatioFixed)
-        self.isAspectRatioFixed = isAspectRatioFixed
-        fixAspectRatio()
         // Load borderless
         let isBorderless = UserDefaults.standard.bool(forKey: "isBorderless")
         NSLog("Loading isBorderless: %d", isBorderless)
@@ -361,6 +356,11 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
         if isBorderless {
             removeBorder()
         }
+        // Load aspect ratio
+        let isAspectRatioFixed = UserDefaults.standard.bool(forKey: "isAspectRatioFixed")
+        NSLog("Loaded isAspectRatioFixed: %d", isAspectRatioFixed)
+        self.isAspectRatioFixed = isAspectRatioFixed
+        fixAspectRatio()
 
         usb.delegate = self
     }
