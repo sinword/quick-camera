@@ -322,6 +322,9 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         detectVideoDevices()
+        
+        // Set minimum window size to prevent resizing too small
+        window.contentMinSize = NSSize(width: 200, height: 200)
 
         // Load device from saved settings
         NSLog("Application is starting. Loading autosaved settings.")
