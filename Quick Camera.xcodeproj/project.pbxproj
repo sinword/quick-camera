@@ -3,10 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 53;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7208059E2B006794007D09DA /* story.json in Resources */ = {isa = PBXBuildFile; fileRef = 7208059D2B006794007D09DA /* story.json */; };
+		7285D98F2AFDE1C100E7EA26 /* CustomViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7285D98E2AFDE1C100E7EA26 /* CustomViewController.swift */; };
 		87673A631E35C97A002ECF15 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87673A621E35C97A002ECF15 /* AVFoundation.framework */; };
 		87FF95021E355CDB0017DADB /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87FF95011E355CDB0017DADB /* AVKit.framework */; };
 		87FF95201E35B7CE0017DADB /* QCAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FF951F1E35B7CE0017DADB /* QCAppDelegate.swift */; };
@@ -17,6 +19,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7208059D2B006794007D09DA /* story.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = story.json; sourceTree = "<group>"; };
+		7285D98E2AFDE1C100E7EA26 /* CustomViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomViewController.swift; sourceTree = "<group>"; };
 		87673A621E35C97A002ECF15 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		87FF95011E355CDB0017DADB /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		87FF951F1E35B7CE0017DADB /* QCAppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QCAppDelegate.swift; sourceTree = "<group>"; };
@@ -90,9 +94,11 @@
 			children = (
 				87FF95211E35BA3B0017DADB /* Quick Camera-Info.plist */,
 				87FF951F1E35B7CE0017DADB /* QCAppDelegate.swift */,
+				7208059D2B006794007D09DA /* story.json */,
 				F43D252C16BB703100CBC272 /* QCamera.entitlements */,
 				F4CBD3AB16B8CE5F003A4794 /* MainMenu.xib */,
 				F952D6E224E15A6200EA786D /* QCUsbWatcher.swift */,
+				7285D98E2AFDE1C100E7EA26 /* CustomViewController.swift */,
 			);
 			path = QCamera;
 			sourceTree = "<group>";
@@ -129,7 +135,6 @@
 				ORGANIZATIONNAME = "Simon Guest";
 				TargetAttributes = {
 					F4CBD39216B8CE5F003A4794 = {
-						DevelopmentTeam = KRZC59WTY9;
 						LastSwiftMigration = "";
 					};
 				};
@@ -159,6 +164,7 @@
 			files = (
 				F4CBD3AD16B8CE5F003A4794 /* MainMenu.xib in Resources */,
 				F43D252B16BB508900CBC272 /* icon.icns in Resources */,
+				7208059E2B006794007D09DA /* story.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -169,6 +175,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7285D98F2AFDE1C100E7EA26 /* CustomViewController.swift in Sources */,
 				87FF95201E35B7CE0017DADB /* QCAppDelegate.swift in Sources */,
 				F952D6E324E15A6200EA786D /* QCUsbWatcher.swift in Sources */,
 			);
@@ -297,7 +304,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1.4.3;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = KRZC59WTY9;
+				DEVELOPMENT_TEAM = 6ULV77C4SH;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "QCamera/QCamera-Prefix.pch";
@@ -331,7 +338,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1.4.3;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = KRZC59WTY9;
+				DEVELOPMENT_TEAM = 6ULV77C4SH;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "QCamera/QCamera-Prefix.pch";

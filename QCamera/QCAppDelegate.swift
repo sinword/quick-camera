@@ -12,7 +12,11 @@ import AVFoundation
 
 @NSApplicationMain
 class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
-
+    var textLayer: CATextLayer?
+    var storyTexts: [String] = []
+    var currentIndex: Int = 0
+    
+    
     let usb = QCUsbWatcher()
     func deviceCountChanged() {
         self.detectVideoDevices()
@@ -93,11 +97,9 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
         let device: AVCaptureDevice = self.devices[defaultDevice];
         
         if (captureSession != nil) {
-            
             // if we are "restarting" a session but the device is the same exit early
             let currentDevice = (self.captureSession.inputs[0] as! AVCaptureDeviceInput).device
             guard currentDevice != device else { return }
-            
             captureSession.stopRunning();
         }
         captureSession = AVCaptureSession();
@@ -115,13 +117,29 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
             self.windowTitle = String(format: "Quick Camera: [%@]", device.localizedName);
             self.window.title = self.windowTitle;
             fixAspectRatio();
+            
+            // 添加文字視窗
+            textLayer = CATextLayer()
+            textLayer?.foregroundColor = NSColor.white.cgColor
+            textLayer?.backgroundColor = NSColor.black.cgColor
+            textLayer?.alignmentMode = .center
+            textLayer?.frame = CGRect(x: 0, y: 0, width: 500, height: 400)  // 設定文字視窗的大小
+            textLayer?.position = CGPoint(x: self.playerView.frame.size.width / 2, y: self.playerView.frame.size.height / 2)
+            textLayer?.opacity = 0.8
+            textLayer?.font = NSFont.systemFont(ofSize: 18.0)
+            textLayer?.isWrapped = true  // 啟用自動換行
+            self.playerView.layer?.addSublayer(textLayer!)
         } catch {
             NSLog("Error while opening device");
             self.errorMessage(message: "Unfortunately, there was an error when trying to access the camera. Try again or select a different one.");
         }
     }
     
-   
+    @objc func updateText() {
+        guard !storyTexts.isEmpty else { return }
+        textLayer?.string = storyTexts[currentIndex]
+        currentIndex = (currentIndex + 1) % storyTexts.count
+    }
     
     @IBAction func mirrorHorizontally(_ sender: NSMenuItem) {
         NSLog("Mirror image menu item selected");
@@ -319,6 +337,31 @@ class QCAppDelegate: NSObject, NSApplicationDelegate, QCUsbWatcherDelegate {
         detectVideoDevices();
         startCaptureWithVideoDevice(defaultDevice: defaultDeviceIndex);
         usb.delegate = self
+        loadStoryTexts()
+        let timer = Timer(timeInterval: 30.0, target: self, selector: #selector(updateText), userInfo: nil, repeats: true)
+        timer.fire()
+        RunLoop.current.add(timer, forMode: .common)
+    }
+    
+    func loadStoryTexts() {
+        if let path = Bundle.main.path(forResource: "story", ofType: "json") {
+            do {
+                let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+
+                if let jsonArray = jsonResult as? [[String: String]] {
+                    storyTexts.removeAll()
+
+                    for story in jsonArray {
+                        if let content = story["content"] {
+                            storyTexts.append(content)
+                        }
+                    }
+                }
+            } catch {
+                print("Error loading story.json: \(error)")
+            }
+        }
     }
     
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
